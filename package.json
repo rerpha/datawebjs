@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "binascii": "^0.0.2",
+    "epics-ioc-connection": "^0.0.10",
+    "express": "^4.18.2",
+    "node-epics-ca": "^0.1.3"
+  }
+}
