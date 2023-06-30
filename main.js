@@ -57,9 +57,17 @@ app.get("/", async function (req, res) {
     ]);
     console.log("calling python");
     pyProg.stdout.on("data", function (data) {
-      console.log("got here");
-      console.log(data.toString());
-      res.render("pages/index", { pvlist: data.toString() });
+
+      const obj = JSON.parse(data.toString());
+
+      var arr = [];
+
+      obj.forEach(element => {
+        console.log(element.name);
+        arr.push(element.name)
+      });
+
+      res.render("pages/index", { pvlist: arr });
     });
   }); 
 });
