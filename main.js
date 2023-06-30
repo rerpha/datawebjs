@@ -1,26 +1,43 @@
 const CA = require("node-epics-ca");
-
+const { spawn } = require("node:child_process");
 const zlib = require("zlib");
-function dehex_and_decompress(value) {
-  // decompress
-  buffer = Buffer.from(value, "hex");
-  var result = zlib.inflateSync(buffer);
-  return result;
-}
+const express = require("express");
+// function dehex_and_decompress(value) {
+//   // decompress
+//   buffer = Buffer.from(value, "hex");
+//   var result = zlib.inflateSync(buffer);
+//   return result;
+// }
 
 async function getPvValue(pv) {
   var PVVal;
-  await CA.get(pv).then(function (value) {
-    PVVal = value;
-  });
-  //console.log(PVVal);
+  try {
+    await CA.get(pv).then(function (value) {
+      PVVal = value;
+    });
+  } catch (error) {
+    console.error(`put failed due to ${error}`);
+  }
   return PVVal;
 }
+
 async function get_inst_list() {
-  return dehex_and_decompress(await getPvValue("CS:INSTLIST"));
+  //return dehex_and_decompress(await getPvValue("CS:INSTLIST"));
+ await getPvValue("CS:INSTLIST").then(function (value) {
+    console.log(value);
+    const pyProg = spawn("/instrument/apps/python3/python.exe", [
+      "./main.py",
+      value,
+    ]);
+    console.log("calling python");
+    pyProg.stdout.on("data", function (data) {
+      console.log("got here");
+      console.log(data.toString());
+      return data.toString();
+    });
+  });
 }
 
-const express = require("express");
 var http = require("http");
 // var https = require('https');
 var app = express();
@@ -32,9 +49,19 @@ app.set("view engine", "ejs");
 
 // index page
 app.get("/", async function (req, res) {
-  get_inst_list().then(function (value) {
-    res.render("pages/index", { pvlist: value });
-  });
+  await getPvValue("CS:INSTLIST").then(function (value) {
+    console.log(value);
+    const pyProg = spawn("/instrument/apps/python3/python.exe", [
+      "./main.py",
+      value,
+    ]);
+    console.log("calling python");
+    pyProg.stdout.on("data", function (data) {
+      console.log("got here");
+      console.log(data.toString());
+      res.render("pages/index", { pvlist: data.toString() });
+    });
+  }); 
 });
 
 var httpServer = http.createServer(app);
