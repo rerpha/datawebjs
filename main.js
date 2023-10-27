@@ -21,6 +21,31 @@ async function getPvValue(pv) {
   return PVVal;
 }
 
+var pv = "IN:SANDALS:DAE:RUNSTATE"
+
+async function blah(pv){
+await CA.get(pv).then(function (value) {
+  console.log(String(value))
+});
+await CA.get(pv).then(function (value) {
+  console.log(String(value))
+});
+await CA.get(pv).then(function (value) {
+  console.log(String(value))
+});
+await CA.get(pv).then(function (value) {
+  console.log(String(value))
+});
+await CA.get(pv).then(function (value) {
+  console.log(String(value))
+});
+await CA.get(pv).then(function (value) {
+  console.log(String(value))
+});
+}
+
+blah(pv)
+
 async function get_inst_list() {
   //return dehex_and_decompress(await getPvValue("CS:INSTLIST"));
  await getPvValue("CS:INSTLIST").then(function (value) {
@@ -71,6 +96,16 @@ app.get("/", async function (req, res) {
     });
   }); 
 });
+
+app.get("/:instrument", async function(req, res) {
+  var pv = "IN:"+req.query.instrument+":DAE:RUNSTATE";
+  console.log(pv)
+  await getPvValue(pv).then(function (value) {
+    console.log(value);
+    res.end(String(value));
+    });
+  }); 
+
 
 var httpServer = http.createServer(app);
 // var httpsServer = https.createServer(credentials, app);
